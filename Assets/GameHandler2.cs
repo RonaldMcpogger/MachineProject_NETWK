@@ -151,6 +151,19 @@ public class GameHandler2 : MonoBehaviour
         this.Player1GuessDisplay.text = "Player1: ";
         this.Player2GuessDisplay.text = "Player2: ";
         this.CurrentPlayerDisplay.text = "Current Player: " + currentPlayer.ToString();
+
+        if (PlayerNumber == currentPlayer)
+            MenuHandlerObject.GetComponent<MenuHandler>().GameActive();
+        else
+            MenuHandlerObject.GetComponent<MenuHandler>().LoadingActive();
+    }
+
+    public void Set()
+    {
+        if (PlayerNumber == currentPlayer)
+            MenuHandlerObject.GetComponent<MenuHandler>().GameActive();
+        else
+            MenuHandlerObject.GetComponent<MenuHandler>().LoadingActive();
     }
     public void DisplayCurrPlayer()
     {

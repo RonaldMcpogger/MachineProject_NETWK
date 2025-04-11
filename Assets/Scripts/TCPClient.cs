@@ -40,7 +40,7 @@ public class TCPClient : MonoBehaviour
             stream = client.GetStream();
             Debug.Log("Connected to server.");
 
-            MenuHandlerObject.GetComponent<MenuHandler>().GameActive();
+            GameHandlerObject.GetComponent<MenuHandler>().Set();
 
             clientReceiveThread = new Thread(new ThreadStart(ListenForData));
             clientReceiveThread.IsBackground = true;
