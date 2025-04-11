@@ -15,23 +15,22 @@ public class TCPServer : MonoBehaviour
     NetworkStream stream = null;
     Thread thread;
 
+    private bool guess = true;
+    public string Guess = string.Empty;
+    public string Judgement = string.Empty;
+
+    public GameObject MenuHandlerObject;
+    private MenuHandler Handler;
+
     private void Start()
     {
-        //thread = new Thread(new ThreadStart(SetupServer));
-        //thread.Start();
+        Handler = MenuHandlerObject.GetComponent<MenuHandler>();
+
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            SendMessageToClient("Hello");
-        }
-        else if (Input.GetKeyDown(KeyCode.X))
-        {
-            thread = new Thread(new ThreadStart(SetupServer));
-            thread.Start();
-        }
+
     }
 
     private void SetupServer()
@@ -61,8 +60,19 @@ public class TCPServer : MonoBehaviour
                     data = Encoding.UTF8.GetString(buffer, 0, i);
                     Debug.Log("Received: " + data);
 
-                    string response = "Server response: " + data.ToString();
-                    SendMessageToClient(message: response);
+                    if (guess)
+                    {
+                        Guess = data.ToString();
+                        guess = false;
+                    }
+                    else
+                    {
+                        Judgement = data.ToString();
+                        guess = true;
+                    }
+
+                    //string response = "Server response: " + data.ToString();
+                    SendMessageToClient(data.ToString());
                 }
                 client.Close();
             }
@@ -85,6 +95,11 @@ public class TCPServer : MonoBehaviour
         thread.Abort();
     }
 
+    public void StartServer()
+    {
+        thread = new Thread(new ThreadStart(SetupServer));
+        thread.Start();
+    }
     public void SendMessageToClient(string message)
     {
         byte[] msg = Encoding.UTF8.GetBytes(message);

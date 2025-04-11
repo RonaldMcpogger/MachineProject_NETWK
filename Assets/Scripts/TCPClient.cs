@@ -8,28 +8,28 @@ public class TCPClient : MonoBehaviour
 {
     public string serverIP = "127.0.0.1"; // Set this to your server's IP address.
     public int serverPort = 4000;             // Set this to your server's port.
-    [SerializeField] private string messageToSend = "Hello World!"; // The message to send.
+    [SerializeField] private string messageToSend = "0"; // The message to send.
 
     private TcpClient client;
     private NetworkStream stream;
     private Thread clientReceiveThread;
 
+    private bool guess = true;
+    public static string Guess = string.Empty;
+    public static string Judgement = string.Empty;
+    public static bool update = false;
+
+    public GameObject MenuHandlerObject;
+    public GameObject GameHandlerObject;
+
     void Start()
     {
-        //ConnectToServer();
+
     }
 
     void Update()
     {
-        //disable this if you are sending from another script or a button
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            SendMessageToServer(messageToSend);
-        }
-        else if (Input.GetKeyDown(KeyCode.Y))
-        {
-            ConnectToServer();
-        }
+
     }
 
     void ConnectToServer()
@@ -39,6 +39,8 @@ public class TCPClient : MonoBehaviour
             client = new TcpClient(serverIP, serverPort);
             stream = client.GetStream();
             Debug.Log("Connected to server.");
+
+            MenuHandlerObject.GetComponent<MenuHandler>().GameActive();
 
             clientReceiveThread = new Thread(new ThreadStart(ListenForData));
             clientReceiveThread.IsBackground = true;
@@ -69,6 +71,20 @@ public class TCPClient : MonoBehaviour
                         // Convert byte array to string message.
                         string serverMessage = Encoding.UTF8.GetString(incomingData);
                         Debug.Log("Server message received: " + serverMessage);
+
+                        if (guess)
+                        {
+                            Guess = serverMessage;
+                            guess = false;
+                        }
+                        else
+                        {
+                            Judgement = serverMessage;
+                            guess = true;
+                            update = true;
+
+                            
+                        }
                     }
                 }
             }
@@ -90,6 +106,31 @@ public class TCPClient : MonoBehaviour
         byte[] data = Encoding.UTF8.GetBytes(message);
         stream.Write(data, 0, data.Length);
         Debug.Log("Sent message to server: " + message);
+    }
+
+    public void ConnectServer(string IP, int port)
+    {
+        serverIP = IP;
+        serverPort = port;
+        ConnectToServer();
+    }
+
+    public bool TryConnectServer(string IP, int port)
+    {
+            try
+            {
+                using (TcpClient client = new TcpClient())
+                {
+                    client.Connect(IP, port);
+                    client.Close();
+                    return true;
+                }
+                
+            }
+            catch (SocketException)
+            {
+                return false;
+            }
     }
 
     void OnApplicationQuit()
